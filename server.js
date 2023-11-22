@@ -20,7 +20,6 @@ app.get('/pokemon/:id', async (req, resp) => {
         const { data } = await pokeAPI.get(`pokemon/${id}`);
 
         const { data: evoChain } = await pokeAPI.get(`evolution-chain/${id}`);
-        
         const { data: gens } = await pokeAPI.get(`generation/${id}`);
 
         // Objeto Pokemon
@@ -59,45 +58,54 @@ app.get('/pokemon', async function(req, resp){
 
     try {
 
-        const { data } = await pokeAPI.get(`pokemon`)
+        const { data } = await pokeAPI.get(`pokemon?offset=0&limit=50`)
 
-        const { data: evoChain } = await pokeAPI.get(`evolution-chain/${id}`);
+        const { data: evoChain } = await pokeAPI.get(`evolution-chain/`);
+        const { data: gens } = await pokeAPI.get(`generation/`);
         
-        const { data: gens } = await pokeAPI.get(`generation/${id}`);
+            for(item in data){
+                const { data } = await pokeAPI.get(item.url)
 
-        // Objeto Pokemon
-        const pokemon = {
-            id: data.id,
-            name: data.name,
-            type: data.types.map((pokemonType) => {
-                return { type_name: pokemonType.type.name };
-            }),
-            gen: gens.name,
-            evo: evoChain.chain.evolves_to.map((pokemonEvo) => {
-                return{ evolves_to: pokemonEvo.species.name}
-            }),
-            power: data.abilities.map((pokemonAbility) => {
-                return { ability: pokemonAbility.ability.name }
-            })
+                // const pokemon = {
+                //         // id:,
+                //         name: data.results.map((poke)=>{
+                //             return{name: poke.name}
+                //         }),
+                //         type: url.type.map((pokemonType) => {
+                //             return { type_name: pokemonType.type.name };
+                //         }),
+                //         // gen: gens.name,
+                //         // evo: evoChain.chain.evolves_to.map((pokemonEvo) => {
+                //         //     return{ evolves_to: pokemonEvo.species.name}
+                //         // }),
+                //         // power: data.abilities.map((pokemonAbility) => {
+                //         //     return { ability: pokemonAbility.ability.name }
+                //         // })
+                    // }
+
+            return resp.json(data.name)
+            return resp.json(pokemon)
+            
         }
-
-        
-        return resp.json(pokemon);
-
-        } catch (error) {
-            console.error(error)
-        }
+    } catch (error) {
+        console.error(error)
+        resp.status(500).json({ error: 'Erro interno do servidor' });
+    }
 
     
 })
 
 app.get('/cities', async function(req, resp){
 
-    const { data } = await pokeAPI.get(`location/${id}`);
+    const { data } = await pokeAPI.get(`location`);
 
     const cities = {
-
+        name: data.results.map((cities)=>{
+            return{city: cities.name}
+        })
     }
+    return resp.json(cities)
+
 })
 
 
