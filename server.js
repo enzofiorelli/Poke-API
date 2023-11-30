@@ -82,19 +82,17 @@ app.get('/pokemon', async function(req, resp){
 
                 const { data } = await pokeAPI.get(item.url)
 
-                // console.log(data)
+                console.log(data)
 
                 let pokemon = {
                     id: data.id,
                     name: data.name,
                     type: data.types.map((pokemonType) => {
-                        return { type_name: pokemonType.type.name };
+                        return pokemonType.type.name
                     }),
                     power: data.abilities.map((pokemonAbility) => {
-                        return { ability: pokemonAbility.ability.name }
-                    }),
-                    // gens: await GetGens(),
-                    // evo: await GetEvolution()
+                        return pokemonAbility.ability.name 
+                    })
                 } 
 
         pokemons.push(pokemon)
@@ -131,9 +129,9 @@ app.get('/pokemon', async function(req, resp){
 
         try {
 
-                const { data: species } = await pokeAPI.get(`pokemon-species/${id}`)
+                const { data: species } = await pokeAPI.get(`pokemon-species/${id}`);
             
-                const evolution_chain = await pokeAPI.get(species.evolution_chain.url)    
+                const evolution_chain = await pokeAPI.get(species.evolution_chain.url);    
 
                 evoInfo = evolution_chain.data.chain;
 
@@ -141,19 +139,28 @@ app.get('/pokemon', async function(req, resp){
 
                 let arrayEvolutions = [evoInfo.species.name];
 
-                evolves_to = evoInfo.evolves_to
+                firstEvo = evoInfo.evolves_to;
 
-                // for(item of evolves_to.results){
-                    let evolutions = {
-                        evo: JSON.stringify(evoInfo.evolves_to.map((pokemonEvo) => {
-                                return{ evolves_to: pokemonEvo.species.name}
-                            })),
-                    }
-                    // console.log(evolutions)
+                console.log(firstEvo)
 
-                    arrayEvolutions.push(evolutions)
-                    console.log(arrayEvolutions)
-                // }
+                test = firstEvo.map((newEvoInfo)=>{
+                    newEvoInfo
+                })
+
+                console.log(test)
+
+                // evolutions = JSON.stringify(evoInfo.firstEvo.map((pokemonEvo) => {
+                //     return pokemonEvo.species.name
+                // }));
+
+                // console.log(evolutions)
+                    
+                // console.log(firstEvo)
+
+                return resp.json(firstEvo)
+
+                arrayEvolutions.push(evolutions)
+                // console.log(arrayEvolutions)
             
         } catch (error) {
             console.error(error)
@@ -161,7 +168,7 @@ app.get('/pokemon', async function(req, resp){
         }
     }
 
-    GetEvolution(1)
+    GetEvolution(1);
 
     // await GetPokeBasicInfo()
 
@@ -186,7 +193,7 @@ app.get('/cities', async function(req, resp){
 
     const cities = {
         name: data.results.map((cities)=>{
-            return{city: cities.name}
+            return cities.name
         })
     }
 
