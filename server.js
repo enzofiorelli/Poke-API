@@ -143,24 +143,24 @@ app.get('/pokemon', async function(req, resp){
 
                 console.log(firstEvo)
 
-                test = firstEvo.map((newEvoInfo)=>{
-                    newEvoInfo
-                })
+                // test = firstEvo[0].evolves_to[0].species.name
+                
+                // .map((newEvoInfo)=>{
+                //     newEvoInfo.species.name
+                // })
 
-                console.log(test)
+                // console.log(test)
 
-                // evolutions = JSON.stringify(evoInfo.firstEvo.map((pokemonEvo) => {
-                //     return pokemonEvo.species.name
-                // }));
+                evolutions = JSON.stringify(evoInfo.firstEvo.map((pokemonEvo) => {
+                    return pokemonEvo.species.name
+                }));
 
-                // console.log(evolutions)
-                    
-                // console.log(firstEvo)
+                console.log(evolutions)
 
-                return resp.json(firstEvo)
+                // return resp.json(firstEvo)
 
                 arrayEvolutions.push(evolutions)
-                // console.log(arrayEvolutions)
+                console.log(arrayEvolutions)
             
         } catch (error) {
             console.error(error)
