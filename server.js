@@ -53,26 +53,22 @@ app.get('/pokemon/:id', async (req, resp) => {
     }   
 });
 
-app.get('/pokemon', async function(req, resp){
+app.get(`/pokemon`, async function(req, resp){
 
     // Paginação: Recebe o número da página e por padrão apresenta a pag 1
 
-    // const { page = 1 } = req.query;
-
-    // console.log(page)
+    const { page = 1 } = req.query;
+    console.log(`Page: ${page}`)
 
     // Limita os registros por página
-    
-    // const limit = 1;
+    const limit = 50;
 
-    const { data } = await pokeAPI.get(`pokemon?limit=2`)
+    var lastPage = 1;
+    var offset = ((page*limit)-limit);
 
-    const { data: species } = await pokeAPI.get(`pokemon-species?limit=2`)
-    // console.log(species)
-
+    const { data } = await pokeAPI.get(`pokemon?limit=${limit}&offset=${offset}`)
+    // const { data: species } = await pokeAPI.get(`pokemon-species`)
     let pokemons = [];
-
-    // const id = data.id
 
     async function GetPokeBasicInfo(){
 
@@ -82,7 +78,7 @@ app.get('/pokemon', async function(req, resp){
 
                 const { data } = await pokeAPI.get(item.url)
 
-                console.log(data)
+                // console.log(data)
 
                 let pokemon = {
                     id: data.id,
@@ -130,37 +126,27 @@ app.get('/pokemon', async function(req, resp){
         try {
 
                 const { data: species } = await pokeAPI.get(`pokemon-species/${id}`);
-            
                 const evolution_chain = await pokeAPI.get(species.evolution_chain.url);    
-
                 evoInfo = evolution_chain.data.chain;
 
                 // console.log(`Chain: `,evoInfo)
 
-                let arrayEvolutions = [evoInfo.species.name];
+                function extractNamesEvo(evolutionChain){
+                    let arrayEvolutions = [];
 
-                firstEvo = evoInfo.evolves_to;
+                    evolutionChain.forEach(evo => {
+                        arrayEvolutions.push(evo.species.name)
 
-                console.log(firstEvo)
+                        const nextEvo = extractNamesEvo(evo.evolves_to);
+                        arrayEvolutions = arrayEvolutions.concat(nextEvo)
 
-                // test = firstEvo[0].evolves_to[0].species.name
-                
-                // .map((newEvoInfo)=>{
-                //     newEvoInfo.species.name
-                // })
+                    });
+                    return arrayEvolutions;
+                }
 
-                // console.log(test)
+                let evolutions = extractNamesEvo([evoInfo])
 
-                evolutions = JSON.stringify(evoInfo.firstEvo.map((pokemonEvo) => {
-                    return pokemonEvo.species.name
-                }));
-
-                console.log(evolutions)
-
-                // return resp.json(firstEvo)
-
-                arrayEvolutions.push(evolutions)
-                console.log(arrayEvolutions)
+                return evolutions;
             
         } catch (error) {
             console.error(error)
@@ -168,20 +154,45 @@ app.get('/pokemon', async function(req, resp){
         }
     }
 
-    GetEvolution(1);
+        await GetPokeBasicInfo()
 
-    // await GetPokeBasicInfo()
+        for(item of pokemons){
+            pokeGen = await GetGens(item.id);
+            pokeEvolution = await GetEvolution(item.id);
+            item.gen = pokeGen
+            item.evo = pokeEvolution  
+        }
 
-    // for(item of pokemons){
-    //     PokeGen = await GetGens(item.id)
-    //     // PokeEvolution = await GetEvolution(pokemon.id)
-    //     item.gen = PokeGen
-    //     // pokemon.PokeEvolution      
-    // }
+        return resp.json(pokemons) 
 
     // console.log(pokemons)
 
-    
+    // Conta a quantidade de pokemons
+    // let counter = 0;
+
+    // async function CountPoke(pokemons){
+
+    //     for(item of pokemons){
+    //         counter++
+    //     }
+    //     // console.log(counter)
+    //     return counter;
+
+    // }
+    // // Ultima página de acordo com o counter
+    // async function LastPage(counter){
+        
+    //     try {
+    //         if(counter !== 0){
+    //             lastPage = (counter/limit)
+    //         }
+    //     } catch (err) {
+    //         console.err("Nenhum pokemon dentro do objeto")
+    //     }
+    //     // console.log(lastPage)
+    //     return lastPage;
+
+    // }
 
 })
 
